@@ -37,6 +37,12 @@ namespace MediaTekDocuments.dal
         private const string POST = "POST";
         /// <summary>
         /// méthode HTTP pour update
+        /// </summary>
+        private const string PUT = "PUT";
+        /// <summary>
+        /// méthode HTTP pour delete
+        /// </summary>
+        private const string DELETE = "DELETE";
 
         /// <summary>
         /// Méthode privée pour créer un singleton
@@ -164,6 +170,112 @@ namespace MediaTekDocuments.dal
         }
 
         /// <summary>
+        /// Récupère toutes les étapes de suivi depuis la BDD.
+        /// </summary>
+        /// <returns>Liste d'objets Suivi</returns>
+        public List<Suivi> GetAllSuivi()
+        {
+            List<Suivi> lesSuivis = TraitementRecup<Suivi>(GET, "suivi", null);
+            return lesSuivis;
+        }
+
+        /// <summary>
+        /// Récupère un livre spécifique par son ID.
+        /// </summary>
+        /// <param name="idLivre">L'identifiant du livre.</param>
+        /// <returns>L'objet Livre trouvé ou null si non trouvé.</returns>
+        public Livre GetLivreById(string idLivre)
+        {
+            String jsonIdLivre = convertToJson("id", idLivre);
+            List<Livre> result = TraitementRecup<Livre>(GET, "livre/" + jsonIdLivre, null);
+            return result?.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Récupère les commandes (avec détails et suivi) pour un livre donné.
+        /// </summary>
+        /// <param name="idLivre">L'identifiant du livre.</param>
+        /// <returns>Liste d'objets CommandeDocumentLivre.</returns>
+        public List<CommandeDocumentLivre> GetCommandesLivre(string idLivre)
+        {
+            String jsonIdLivre = convertToJson("idLivreDvd", idLivre);
+            List<CommandeDocumentLivre> lesCommandes = TraitementRecup<CommandeDocumentLivre>(GET, "commandedocument/" + jsonIdLivre, null);
+            return lesCommandes;
+        }
+
+        /// <summary>
+        /// Crée une nouvelle commande et sa ligne de document associée via l'API.
+        /// </summary>
+        /// <param name="commande">L'objet Commande à créer.</param>
+        /// <param name="commandeDocument">L'objet CommandeDocument associé.</param>
+        /// <returns>True si la création a réussi (code 200), sinon False.</returns>
+        public bool CreerCommandeDocument(Commande commande, CommandeDocument commandeDocument)
+        {
+            String jsonCommande = JsonConvert.SerializeObject(commande, new CustomDateTimeConverter());
+            String jsonCommandeDocument = JsonConvert.SerializeObject(commandeDocument);
+
+            String parametres = $"commande={jsonCommande}&commandeDoc={jsonCommandeDocument}";
+
+            try
+            {
+                JObject retour = api.RecupDistant(POST, "commandedocument", parametres);
+                return retour != null && (String)retour["code"] == "200";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur lors de la création de la commande via l'API : " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Modifie l'étape de suivi d'une commande document via l'API.
+        /// </summary>
+        /// <param name="idCommande">L'ID de la commande document à modifier.</param>
+        /// <param name="idSuivi">Le nouvel ID de l'étape de suivi.</param>
+        /// <returns>True si la modification a réussi (code 200), sinon False.</returns>
+        public bool ModifierSuiviCommande(string idCommande, int idSuivi)
+        {
+            String jsonIdSuivi = convertToJson("idSuivi", idSuivi);
+            String parametres = "champs=" + jsonIdSuivi;
+
+            try
+            {
+                JObject retour = api.RecupDistant(PUT, "commandedocument/" + idCommande, parametres);
+                return retour != null && (String)retour["code"] == "200";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la modification du suivi (ID: {idCommande}) via l'API : " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Supprime une commande via l'API.
+        /// </summary>
+        /// <param name="idCommande">L'ID de la commande à supprimer.</param>
+        /// <returns>True si la suppression a réussi (code 200), sinon False.</returns>
+        public bool SupprimerCommande(string idCommande)
+        {
+            try
+            {
+                JObject retour = api.RecupDistant(DELETE, "commande/" + idCommande, null);
+                bool success = retour != null && (String)retour["code"] == "200";
+                if (!success)
+                {
+                    Console.WriteLine($"Erreur retournée par l'API lors de la suppression (ID: {idCommande}): Code={(String)retour?["code"]} Message={(String)retour?["message"]}");
+                }
+                 return success;
+            }
+            catch (Exception ex)
+            {
+                 Console.WriteLine($"Erreur lors de la suppression de la commande (ID: {idCommande}) via l'API : " + ex.Message);
+                 return false;
+            }
+        }
+
+        /// <summary>
         /// Traitement de la récupération du retour de l'api, avec conversion du json en liste pour les select (GET)
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -173,20 +285,16 @@ namespace MediaTekDocuments.dal
         /// <returns>liste d'objets récupérés (ou liste vide)</returns>
         private List<T> TraitementRecup<T> (String methode, String message, String parametres)
         {
-            // trans
             List<T> liste = new List<T>();
             try
             {
                 JObject retour = api.RecupDistant(methode, message, parametres);
-                // extraction du code retourné
                 String code = (String)retour["code"];
                 if (code.Equals("200"))
                 {
-                    // dans le cas du GET (select), récupération de la liste d'objets
                     if (methode.Equals(GET))
                     {
                         String resultString = JsonConvert.SerializeObject(retour["result"]);
-                        // construction de la liste d'objets à partir du retour de l'api
                         liste = JsonConvert.DeserializeObject<List<T>>(resultString, new CustomBooleanJsonConverter());
                     }
                 }
@@ -244,5 +352,16 @@ namespace MediaTekDocuments.dal
             }
         }
 
+        /// <summary>
+        /// Récupère un DVD spécifique par son ID.
+        /// </summary>
+        /// <param name="idDvd">L'identifiant du DVD.</param>
+        /// <returns>L'objet Dvd trouvé ou null si non trouvé.</returns>
+        public Dvd GetDvdById(string idDvd)
+        {
+            String jsonIdDvd = convertToJson("id", idDvd);
+            List<Dvd> result = TraitementRecup<Dvd>(GET, "dvd/" + jsonIdDvd, null);
+            return result?.FirstOrDefault();
+        }
     }
 }

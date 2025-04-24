@@ -96,5 +96,77 @@ namespace MediaTekDocuments.controller
         {
             return access.CreerExemplaire(exemplaire);
         }
+
+        /// <summary>
+        /// Récupère toutes les étapes de suivi.
+        /// </summary>
+        /// <returns>Liste d'objets Suivi</returns>
+        public List<Suivi> GetAllSuivi()
+        {
+            return access.GetAllSuivi();
+        }
+
+        /// <summary>
+        /// Récupère un livre par son Id.
+        /// </summary>
+        /// <param name="idLivre">L'identifiant du livre.</param>
+        /// <returns>L'objet Livre trouvé ou null.</returns>
+        public Livre GetLivreById(string idLivre)
+        {
+            return access.GetLivreById(idLivre);
+        }
+
+        /// <summary>
+        /// Récupère un DVD par son Id.
+        /// </summary>
+        /// <param name="idDvd">L'identifiant du DVD.</param>
+        /// <returns>L'objet Dvd trouvé ou null.</returns>
+        public Dvd GetDvdById(string idDvd)
+        {
+            return access.GetDvdById(idDvd);
+        }
+
+        /// <summary>
+        /// Récupère les commandes associées à un livre.
+        /// Utilise le ViewModel CommandeDocumentLivre pour inclure le libellé du suivi.
+        /// </summary>
+        /// <param name="idLivre">L'identifiant du livre.</param>
+        /// <returns>Liste d'objets CommandeDocumentLivre</returns>
+        public List<CommandeDocumentLivre> GetCommandesLivre(string idLivre)
+        {
+            return access.GetCommandesLivre(idLivre);
+        }
+
+        /// <summary>
+        /// Crée une nouvelle commande et sa ligne de document associée.
+        /// </summary>
+        /// <param name="commande">L'objet Commande à créer.</param>
+        /// <param name="commandeDocument">L'objet CommandeDocument associé.</param>
+        /// <returns>True si la création a réussi, sinon False.</returns>
+        public bool CreerCommandeDocument(Commande commande, CommandeDocument commandeDocument)
+        {
+            return access.CreerCommandeDocument(commande, commandeDocument);
+        }
+
+        /// <summary>
+        /// Modifie l'étape de suivi d'une commande document.
+        /// </summary>
+        /// <param name="idCommande">L'ID de la commande document à modifier.</param>
+        /// <param name="idSuivi">Le nouvel ID de l'étape de suivi.</param>
+        /// <returns>True si la modification a réussi, sinon False.</returns>
+        public bool ModifierSuiviCommande(string idCommande, int idSuivi)
+        {
+            return access.ModifierSuiviCommande(idCommande, idSuivi);
+        }
+
+        /// <summary>
+        /// Supprime une commande et sa ligne de document associée.
+        /// </summary>
+        /// <param name="idCommande">L'ID de la commande à supprimer.</param>
+        /// <returns>True si la suppression a réussi, sinon False.</returns>
+        public bool SupprimerCommande(string idCommande)
+        {
+            return access.SupprimerCommande(idCommande);
+        }
     }
 }
