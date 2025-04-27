@@ -40,9 +40,9 @@ namespace MediaTekDocuments.view
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lvAbonnements.FullRowSelect = true;
             this.lvAbonnements.HideSelection = false;
-            this.lvAbonnements.Location = new System.Drawing.Point(12, 25);
+            this.lvAbonnements.Location = new System.Drawing.Point(12, 29);
             this.lvAbonnements.Name = "lvAbonnements";
-            this.lvAbonnements.Size = new System.Drawing.Size(558, 264);
+            this.lvAbonnements.Size = new System.Drawing.Size(560, 251);
             this.lvAbonnements.TabIndex = 0;
             this.lvAbonnements.UseCompatibleStateImageBehavior = false;
             this.lvAbonnements.View = System.Windows.Forms.View.Details;
@@ -50,7 +50,7 @@ namespace MediaTekDocuments.view
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(495, 295);
+            this.btnOK.Location = new System.Drawing.Point(497, 286);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 1;
@@ -62,7 +62,7 @@ namespace MediaTekDocuments.view
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(12, 13);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(298, 13);
             this.label1.TabIndex = 2;
@@ -72,7 +72,7 @@ namespace MediaTekDocuments.view
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 330);
+            this.ClientSize = new System.Drawing.Size(584, 321);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.lvAbonnements);

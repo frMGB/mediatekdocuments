@@ -8,6 +8,8 @@ using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
+using Serilog;
+using Serilog.Core;
 
 namespace MediaTekDocuments.dal
 {
@@ -19,7 +21,7 @@ namespace MediaTekDocuments.dal
         /// <summary>
         /// adresse de l'API
         /// </summary>
-        private static readonly string uriApi = "http://localhost/rest_mediatekdocuments/";
+        private static readonly string uriApi = ConfigurationManager.AppSettings["UriApi"];
         /// <summary>
         /// instance unique de la classe
         /// </summary>
@@ -28,6 +30,13 @@ namespace MediaTekDocuments.dal
         /// instance de ApiRest pour envoyer des demandes vers l'api et recevoir la réponse
         /// </summary>
         private readonly ApiRest api = null;
+        /// <summary>
+        /// Logger pour enregistrer les messages
+        /// </summary>
+        private static readonly Logger log = new LoggerConfiguration()
+                .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day,
+                              outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
         /// <summary>
         /// méthode HTTP pour select
         /// </summary>
@@ -59,7 +68,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                log.Fatal(e, "Erreur lors de l'initialisation de l'accès API : {Message}", e.Message);
                 Environment.Exit(0);
             }
         }
@@ -174,29 +183,17 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                log.Error(ex, "Erreur dans CreerExemplaire : {Message}", ex.Message);
             }
             return false;
         }
 
         /// <summary>
-        /// Retourne les commandes d'un livre
+        /// Retourne les commandes d'un document (livre ou DVD)
         /// </summary>
-        /// <param name="idDocument">id du livre concerné</param>
+        /// <param name="idDocument">id du document concerné</param>
         /// <returns>Liste d'objets CommandeDocument</returns>
-        public List<CommandeDocument> GetCommandesLivre(string idDocument)
-        {
-            String jsonIdDocument = convertToJson("id", idDocument);
-            List<CommandeDocument> lesCommandes = TraitementRecup<CommandeDocument>(GET, "commandedocument/" + jsonIdDocument, null);
-            return lesCommandes;
-        }
-
-        /// <summary>
-        /// Retourne les commandes d'un DVD
-        /// </summary>
-        /// <param name="idDocument">id du DVD concerné</param>
-        /// <returns>Liste d'objets CommandeDocument</returns>
-        public List<CommandeDocument> GetCommandesDvd(string idDocument)
+        public List<CommandeDocument> GetCommandesDocument(string idDocument)
         {
             String jsonIdDocument = convertToJson("id", idDocument);
             List<CommandeDocument> lesCommandes = TraitementRecup<CommandeDocument>(GET, "commandedocument/" + jsonIdDocument, null);
@@ -224,7 +221,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                log.Error(ex, "Erreur dans CreerCommandeDocument : {Message}", ex.Message);
             }
             return false;
         }
@@ -247,7 +244,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                log.Error(ex, "Erreur dans ModifierEtapeSuivi : {Message}", ex.Message);
             }
             return false;
         }
@@ -267,7 +264,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                log.Error(ex, "Erreur dans SupprimerCommandeDocument : {Message}", ex.Message);
             }
             return false;
         }
@@ -291,15 +288,12 @@ namespace MediaTekDocuments.dal
         /// <returns>true si la création a réussi</returns>
         public bool CreerAbonnement(Abonnement abonnement)
         {
-            // Création du format form-urlencoded directement
             string parametres = $"id={abonnement.Id}" +
                               $"&dateCommande={abonnement.DateCommande.ToString("yyyy-MM-dd")}" +
                               $"&montant={abonnement.Montant.ToString().Replace(",", ".")}" +
                               $"&dateFinAbonnement={abonnement.DateFinAbonnement.ToString("yyyy-MM-dd")}" +
                               $"&idRevue={abonnement.IdRevue}";
 
-            // Afficher le format pour déboguer
-            MessageBox.Show("Paramètres envoyés: " + parametres);
             try
             {
                 List<Abonnement> liste = TraitementRecup<Abonnement>(POST, "commanderevue", parametres);
@@ -307,7 +301,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                log.Error(ex, "Erreur dans CreerAbonnement : {Message}", ex.Message);
             }
             return false;
         }
@@ -327,7 +321,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                log.Error(ex, "Erreur dans SupprimerAbonnement : {Message}", ex.Message);
             }
             return false;
         }
@@ -339,7 +333,7 @@ namespace MediaTekDocuments.dal
         /// <param name="dateFinAbonnement">Date de fin d'abonnement</param>
         /// <param name="dateParution">Date de parution à vérifier</param>
         /// <returns>True si la parution est comprise dans l'abonnement</returns>
-        public bool ParutionDansAbonnement(DateTime dateCommande, DateTime dateFinAbonnement, DateTime dateParution)
+        public static bool ParutionDansAbonnement(DateTime dateCommande, DateTime dateFinAbonnement, DateTime dateParution)
         {
             return (dateParution >= dateCommande && dateParution <= dateFinAbonnement);
         }
@@ -371,7 +365,7 @@ namespace MediaTekDocuments.dal
         /// </summary>
         /// <param name="login">Login de l'utilisateur.</param>
         /// <param name="password">Mot de passe de l'utilisateur.</param>
-        /// <returns>Un objet Utilisateur (minimaliste avec Login et IdService) si l'authentification réussit, sinon null.</returns>
+        /// <returns>Un objet Utilisateur si l'authentification réussit, sinon null.</returns>
         public Utilisateur AuthenticateUser(string login, string password)
         {
             string parametres = $"login={Uri.EscapeDataString(login)}&password={Uri.EscapeDataString(password)}";
@@ -390,32 +384,31 @@ namespace MediaTekDocuments.dal
                         }
                         else
                         {
-                            Console.WriteLine("Erreur AuthenticateUser : Données utilisateur invalides reçues de l'API.");
+                            log.Warning("Erreur AuthenticateUser : Données utilisateur invalides reçues de l'API.");
                             return null;
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Erreur AuthenticateUser : La clé 'result' est manquante ou n'est pas un objet JSON dans la réponse API.");
+                        log.Warning("Erreur AuthenticateUser : La clé 'result' est manquante ou n'est pas un objet JSON dans la réponse API.");
                         return null;
                     }
                 }
                 else if (retour != null && retour["code"] != null)
                 {
-                    Console.WriteLine($"Erreur AuthenticateUser (API) : Code {retour["code"]} - Message: {retour["message"]}");
+                    log.Warning("Erreur AuthenticateUser (API) : Code {ApiCode} - Message: {ApiMessage}", retour["code"], retour["message"]);
                     return null;
                 }
                 else
                 {
-                     Console.WriteLine("Erreur AuthenticateUser : Réponse invalide ou nulle de l'API.");
-                     return null;
+                    log.Warning("Erreur AuthenticateUser : Réponse invalide ou nulle de l'API.");
+                    return null;
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception dans AuthenticateUser : " + e.Message);
-                // Peut-être logger l'exception ici
-                return null; // Authentification échouée suite à une exception
+                log.Error(e, "Exception dans AuthenticateUser : {Message}", e.Message);
+                return null;
             }
         }
 
@@ -441,7 +434,7 @@ namespace MediaTekDocuments.dal
         /// <typeparam name="T"></typeparam>
         /// <param name="methode">verbe HTTP (GET, POST, PUT, DELETE)</param>
         /// <param name="message">information envoyée dans l'url</param>
-        /// <param name="parametres">paramètres à envoyer dans le body, au format "chp1=val1&chp2=val2&..."</param>
+        /// <param name="parametres">paramètres à envoyer dans le body</param>
         /// <returns>liste d'objets récupérés (ou liste vide)</returns>
         private List<T> TraitementRecup<T> (String methode, String message, String parametres)
         {
@@ -461,11 +454,11 @@ namespace MediaTekDocuments.dal
                 }
                 else
                 {
-                    Console.WriteLine("code erreur = " + code + " message = " + (String)retour["message"]);
+                    log.Warning("Erreur API dans TraitementRecup : code erreur = {ApiCode} message = {ApiMessage}", code, (String)retour["message"]);
                 }
             }catch(Exception e)
             {
-                Console.WriteLine("Erreur lors de l'accès à l'API : "+e.Message);
+                log.Fatal(e, "Erreur fatale lors de l'accès à l'API dans TraitementRecup : {Message}", e.Message);
                 Environment.Exit(0);
             }
             return liste;
@@ -477,7 +470,7 @@ namespace MediaTekDocuments.dal
         /// <param name="nom"></param>
         /// <param name="valeur"></param>
         /// <returns>couple au format json</returns>
-        private String convertToJson(Object nom, Object valeur)
+        private static String convertToJson(Object nom, Object valeur)
         {
             Dictionary<Object, Object> dictionary = new Dictionary<Object, Object>();
             dictionary.Add(nom, valeur);

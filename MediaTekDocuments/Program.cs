@@ -19,7 +19,7 @@ namespace MediaTekDocuments
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             // Lancement du formulaire de connexion au lieu du formulaire principal
-            Application.Run(new FrmLogin());
+            Application.Run(new FrmAuth());
         }
     }
 }

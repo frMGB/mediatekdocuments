@@ -33,31 +33,22 @@ namespace MediaTekDocuments.view
             }
 
             lvAbonnements.Clear();
-            lvAbonnements.Columns.Add("Id");
             lvAbonnements.Columns.Add("Titre");
             lvAbonnements.Columns.Add("Date fin abonnement");
-            lvAbonnements.Columns.Add("Périodicité");
-            lvAbonnements.Columns.Add("Délai mise à dispo");
 
             foreach (Tuple<Revue, DateTime> tuple in abonnementsFinProche)
             {
                 Revue revue = tuple.Item1;
                 DateTime dateFinAbonnement = tuple.Item2;
 
-                ListViewItem item = new ListViewItem(revue.Id);
-                item.SubItems.Add(revue.Titre);
+                ListViewItem item = new ListViewItem(revue.Titre);
                 item.SubItems.Add(dateFinAbonnement.ToShortDateString());
-                item.SubItems.Add(revue.Periodicite);
-                item.SubItems.Add(revue.DelaiMiseADispo.ToString());
 
                 lvAbonnements.Items.Add(item);
             }
 
-            lvAbonnements.Columns[0].Width = 50;
-            lvAbonnements.Columns[1].Width = 200;
-            lvAbonnements.Columns[2].Width = 100;
-            lvAbonnements.Columns[3].Width = 80;
-            lvAbonnements.Columns[4].Width = 100;
+            lvAbonnements.Columns[0].Width = 250;
+            lvAbonnements.Columns[1].Width = 150;
         }
 
         /// <summary>

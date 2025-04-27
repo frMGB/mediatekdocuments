@@ -111,19 +111,9 @@ namespace MediaTekDocuments.controller
         /// </summary>
         /// <param name="idDocument">Id du livre concerné</param>
         /// <returns>Liste des commandes de ce livre</returns>
-        public List<CommandeDocument> GetCommandesLivre(string idDocument)
+        public List<CommandeDocument> GetCommandesDocument(string idDocument)
         {
-            return access.GetCommandesLivre(idDocument);
-        }
-
-        /// <summary>
-        /// Récupère les commandes d'un DVD
-        /// </summary>
-        /// <param name="idDocument">Id du DVD concerné</param>
-        /// <returns>Liste des commandes de ce DVD</returns>
-        public List<CommandeDocument> GetCommandesDvd(string idDocument)
-        {
-            return access.GetCommandesDvd(idDocument);
+            return access.GetCommandesDocument(idDocument);
         }
 
         /// <summary>
@@ -194,9 +184,9 @@ namespace MediaTekDocuments.controller
         /// <param name="dateFinAbonnement">Date de fin d'abonnement</param>
         /// <param name="dateParution">Date de parution à vérifier</param>
         /// <returns>True si la parution est dans la période d'abonnement</returns>
-        public bool ParutionDansAbonnement(DateTime dateCommande, DateTime dateFinAbonnement, DateTime dateParution)
+        public static bool ParutionDansAbonnement(DateTime dateCommande, DateTime dateFinAbonnement, DateTime dateParution)
         {
-            return access.ParutionDansAbonnement(dateCommande, dateFinAbonnement, dateParution);
+            return Access.ParutionDansAbonnement(dateCommande, dateFinAbonnement, dateParution);
         }
 
         /// <summary>

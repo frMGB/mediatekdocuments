@@ -90,27 +90,7 @@ namespace MediaTekDocuments.manager
             }
             // récupération de l'information retournée par l'api
             string jsonResponse = httpResponse.Content.ReadAsStringAsync().Result;
-
-            // --- AJOUT POUR DEBUG --- 
-            Console.WriteLine("--- API Response ---");
-            Console.WriteLine($"URL: {httpClient.BaseAddress}{message}");
-            Console.WriteLine($"Status Code: {httpResponse.StatusCode}");
-            Console.WriteLine("Raw Response Body:");
-            Console.WriteLine(jsonResponse);
-            Console.WriteLine("--- End API Response ---");
-            // --- FIN AJOUT --- 
-
-            try
-            {
-                return JObject.Parse(jsonResponse);
-            }
-            catch (JsonReaderException ex)
-            {
-                Console.WriteLine($"Erreur de parsing JSON : {ex.Message}");
-                Console.WriteLine($"Réponse brute qui a causé l'erreur :\n{jsonResponse}");
-                // Retourne un JObject vide ou spécifique pour indiquer l'erreur de parsing plutôt que de laisser l'application crash plus loin.
-                return JObject.FromObject(new { code = "PARSE_ERROR", message = "Erreur parsing JSON: " + ex.Message, result = (string)null });
-            }
+            return JObject.Parse(jsonResponse);
         }
 
     }
