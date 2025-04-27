@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MediaTekDocuments.model;
 using MediaTekDocuments.dal;
 
@@ -76,6 +77,14 @@ namespace MediaTekDocuments.controller
             return access.GetAllPublics();
         }
 
+        /// <summary>
+        /// getter sur les étapes de suivi
+        /// </summary>
+        /// <returns>Liste d'objets Suivi</returns>
+        public List<Categorie> GetAllSuivis()
+        {
+            return access.GetAllSuivis();
+        }
 
         /// <summary>
         /// récupère les exemplaires d'une revue
@@ -98,75 +107,116 @@ namespace MediaTekDocuments.controller
         }
 
         /// <summary>
-        /// Récupère toutes les étapes de suivi.
+        /// Récupère les commandes d'un livre
         /// </summary>
-        /// <returns>Liste d'objets Suivi</returns>
-        public List<Suivi> GetAllSuivi()
+        /// <param name="idDocument">Id du livre concerné</param>
+        /// <returns>Liste des commandes de ce livre</returns>
+        public List<CommandeDocument> GetCommandesLivre(string idDocument)
         {
-            return access.GetAllSuivi();
+            return access.GetCommandesLivre(idDocument);
         }
 
         /// <summary>
-        /// Récupère un livre par son Id.
+        /// Récupère les commandes d'un DVD
         /// </summary>
-        /// <param name="idLivre">L'identifiant du livre.</param>
-        /// <returns>L'objet Livre trouvé ou null.</returns>
-        public Livre GetLivreById(string idLivre)
+        /// <param name="idDocument">Id du DVD concerné</param>
+        /// <returns>Liste des commandes de ce DVD</returns>
+        public List<CommandeDocument> GetCommandesDvd(string idDocument)
         {
-            return access.GetLivreById(idLivre);
+            return access.GetCommandesDvd(idDocument);
         }
 
         /// <summary>
-        /// Récupère un DVD par son Id.
+        /// Crée une commande de document (livre ou DVD)
         /// </summary>
-        /// <param name="idDvd">L'identifiant du DVD.</param>
-        /// <returns>L'objet Dvd trouvé ou null.</returns>
-        public Dvd GetDvdById(string idDvd)
+        /// <param name="commande">La commande à créer</param>
+        /// <returns>True si la création a réussi</returns>
+        public bool CreerCommandeDocument(CommandeDocument commande)
         {
-            return access.GetDvdById(idDvd);
+            return access.CreerCommandeDocument(commande);
         }
 
         /// <summary>
-        /// Récupère les commandes associées à un livre.
-        /// Utilise le ViewModel CommandeDocumentLivre pour inclure le libellé du suivi.
+        /// Modifie l'étape de suivi d'une commande
         /// </summary>
-        /// <param name="idLivre">L'identifiant du livre.</param>
-        /// <returns>Liste d'objets CommandeDocumentLivre</returns>
-        public List<CommandeDocumentLivre> GetCommandesLivre(string idLivre)
+        /// <param name="idCommande">Id de la commande</param>
+        /// <param name="idSuivi">Nouvel id de l'étape de suivi</param>
+        /// <returns>True si la modification a réussi</returns>
+        public bool ModifierEtapeSuivi(string idCommande, string idSuivi)
         {
-            return access.GetCommandesLivre(idLivre);
+            return access.ModifierEtapeSuivi(idCommande, idSuivi);
         }
 
         /// <summary>
-        /// Crée une nouvelle commande et sa ligne de document associée.
+        /// Supprime une commande de document
         /// </summary>
-        /// <param name="commande">L'objet Commande à créer.</param>
-        /// <param name="commandeDocument">L'objet CommandeDocument associé.</param>
-        /// <returns>True si la création a réussi, sinon False.</returns>
-        public bool CreerCommandeDocument(Commande commande, CommandeDocument commandeDocument)
+        /// <param name="idCommande">Id de la commande à supprimer</param>
+        /// <returns>True si la suppression a réussi</returns>
+        public bool SupprimerCommandeDocument(string idCommande)
         {
-            return access.CreerCommandeDocument(commande, commandeDocument);
+            return access.SupprimerCommandeDocument(idCommande);
         }
 
         /// <summary>
-        /// Modifie l'étape de suivi d'une commande document.
+        /// Récupère les abonnements d'une revue
         /// </summary>
-        /// <param name="idCommande">L'ID de la commande document à modifier.</param>
-        /// <param name="idSuivi">Le nouvel ID de l'étape de suivi.</param>
-        /// <returns>True si la modification a réussi, sinon False.</returns>
-        public bool ModifierSuiviCommande(string idCommande, int idSuivi)
+        /// <param name="idRevue">Id de la revue concernée</param>
+        /// <returns>Liste des abonnements de cette revue</returns>
+        public List<Abonnement> GetAbonnementsRevue(string idRevue)
         {
-            return access.ModifierSuiviCommande(idCommande, idSuivi);
+            return access.GetAbonnementsRevue(idRevue);
         }
 
         /// <summary>
-        /// Supprime une commande et sa ligne de document associée.
+        /// Crée un abonnement (commande de revue)
         /// </summary>
-        /// <param name="idCommande">L'ID de la commande à supprimer.</param>
-        /// <returns>True si la suppression a réussi, sinon False.</returns>
-        public bool SupprimerCommande(string idCommande)
+        /// <param name="abonnement">L'abonnement à créer</param>
+        /// <returns>True si la création a réussi</returns>
+        public bool CreerAbonnement(Abonnement abonnement)
         {
-            return access.SupprimerCommande(idCommande);
+            return access.CreerAbonnement(abonnement);
+        }
+
+        /// <summary>
+        /// Supprime un abonnement
+        /// </summary>
+        /// <param name="idAbonnement">Id de l'abonnement à supprimer</param>
+        /// <returns>True si la suppression a réussi</returns>
+        public bool SupprimerAbonnement(string idAbonnement)
+        {
+            return access.SupprimerAbonnement(idAbonnement);
+        }
+
+        /// <summary>
+        /// Vérifie si une parution se trouve dans la période d'un abonnement
+        /// </summary>
+        /// <param name="dateCommande">Date de début d'abonnement</param>
+        /// <param name="dateFinAbonnement">Date de fin d'abonnement</param>
+        /// <param name="dateParution">Date de parution à vérifier</param>
+        /// <returns>True si la parution est dans la période d'abonnement</returns>
+        public bool ParutionDansAbonnement(DateTime dateCommande, DateTime dateFinAbonnement, DateTime dateParution)
+        {
+            return access.ParutionDansAbonnement(dateCommande, dateFinAbonnement, dateParution);
+        }
+
+        /// <summary>
+        /// Récupère les revues dont l'abonnement se termine dans moins de 30 jours
+        /// </summary>
+        /// <returns>Liste de tuples (revue, date de fin)</returns>
+        public List<Tuple<Revue, DateTime>> GetAbonnementsFinProche()
+        {
+            return access.GetAbonnementsFinProche();
+        }
+
+        /// <summary>
+        /// Tente d'authentifier un utilisateur.
+        /// </summary>
+        /// <param name="login">Login de l'utilisateur.</param>
+        /// <param name="password">Mot de passe de l'utilisateur.</param>
+        /// <returns>L'objet Utilisateur si l'authentification réussit, sinon null.</returns>
+        public Utilisateur AuthenticateUser(string login, string password)
+        {
+            return access.AuthenticateUser(login, password);
         }
     }
 }

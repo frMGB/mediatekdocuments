@@ -1,6 +1,10 @@
-﻿using MediaTekDocuments.view;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using MediaTekDocuments.view;
+using MediaTekDocuments.controller;
 
 namespace MediaTekDocuments
 {
@@ -14,7 +18,8 @@ namespace MediaTekDocuments
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FrmMediatek());
+            // Lancement du formulaire de connexion au lieu du formulaire principal
+            Application.Run(new FrmLogin());
         }
     }
 }

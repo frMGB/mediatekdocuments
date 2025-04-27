@@ -1,4 +1,5 @@
-﻿
+﻿using Newtonsoft.Json;
+
 namespace MediaTekDocuments.model
 {
     /// <summary>
@@ -7,6 +8,8 @@ namespace MediaTekDocuments.model
     public class Categorie
     {
         public string Id { get; }
+
+        [JsonProperty("etape")]
         public string Libelle { get; }
 
         public Categorie(string id, string libelle)

@@ -7,6 +7,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace MediaTekDocuments.dal
 {
@@ -107,6 +108,16 @@ namespace MediaTekDocuments.dal
         }
 
         /// <summary>
+        /// Retourne toutes les étapes de suivi à partir de la BDD
+        /// </summary>
+        /// <returns>Liste d'objets Suivi</returns>
+        public List<Categorie> GetAllSuivis()
+        {
+            IEnumerable<Suivi> lesSuivis = TraitementRecup<Suivi>(GET, "suivi", null);
+            return new List<Categorie>(lesSuivis);
+        }
+
+        /// <summary>
         /// Retourne toutes les livres à partir de la BDD
         /// </summary>
         /// <returns>Liste d'objets Livre</returns>
@@ -135,7 +146,6 @@ namespace MediaTekDocuments.dal
             List<Revue> lesRevues = TraitementRecup<Revue>(GET, "revue", null);
             return lesRevues;
         }
-
 
         /// <summary>
         /// Retourne les exemplaires d'une revue
@@ -170,109 +180,259 @@ namespace MediaTekDocuments.dal
         }
 
         /// <summary>
-        /// Récupère toutes les étapes de suivi depuis la BDD.
+        /// Retourne les commandes d'un livre
         /// </summary>
-        /// <returns>Liste d'objets Suivi</returns>
-        public List<Suivi> GetAllSuivi()
+        /// <param name="idDocument">id du livre concerné</param>
+        /// <returns>Liste d'objets CommandeDocument</returns>
+        public List<CommandeDocument> GetCommandesLivre(string idDocument)
         {
-            List<Suivi> lesSuivis = TraitementRecup<Suivi>(GET, "suivi", null);
-            return lesSuivis;
-        }
-
-        /// <summary>
-        /// Récupère un livre spécifique par son ID.
-        /// </summary>
-        /// <param name="idLivre">L'identifiant du livre.</param>
-        /// <returns>L'objet Livre trouvé ou null si non trouvé.</returns>
-        public Livre GetLivreById(string idLivre)
-        {
-            String jsonIdLivre = convertToJson("id", idLivre);
-            List<Livre> result = TraitementRecup<Livre>(GET, "livre/" + jsonIdLivre, null);
-            return result?.FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Récupère les commandes (avec détails et suivi) pour un livre donné.
-        /// </summary>
-        /// <param name="idLivre">L'identifiant du livre.</param>
-        /// <returns>Liste d'objets CommandeDocumentLivre.</returns>
-        public List<CommandeDocumentLivre> GetCommandesLivre(string idLivre)
-        {
-            String jsonIdLivre = convertToJson("idLivreDvd", idLivre);
-            List<CommandeDocumentLivre> lesCommandes = TraitementRecup<CommandeDocumentLivre>(GET, "commandedocument/" + jsonIdLivre, null);
+            String jsonIdDocument = convertToJson("id", idDocument);
+            List<CommandeDocument> lesCommandes = TraitementRecup<CommandeDocument>(GET, "commandedocument/" + jsonIdDocument, null);
             return lesCommandes;
         }
 
         /// <summary>
-        /// Crée une nouvelle commande et sa ligne de document associée via l'API.
+        /// Retourne les commandes d'un DVD
         /// </summary>
-        /// <param name="commande">L'objet Commande à créer.</param>
-        /// <param name="commandeDocument">L'objet CommandeDocument associé.</param>
-        /// <returns>True si la création a réussi (code 200), sinon False.</returns>
-        public bool CreerCommandeDocument(Commande commande, CommandeDocument commandeDocument)
+        /// <param name="idDocument">id du DVD concerné</param>
+        /// <returns>Liste d'objets CommandeDocument</returns>
+        public List<CommandeDocument> GetCommandesDvd(string idDocument)
         {
-            String jsonCommande = JsonConvert.SerializeObject(commande, new CustomDateTimeConverter());
-            String jsonCommandeDocument = JsonConvert.SerializeObject(commandeDocument);
-
-            String parametres = $"commande={jsonCommande}&commandeDoc={jsonCommandeDocument}";
-
-            try
-            {
-                JObject retour = api.RecupDistant(POST, "commandedocument", parametres);
-                return retour != null && (String)retour["code"] == "200";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erreur lors de la création de la commande via l'API : " + ex.Message);
-                return false;
-            }
+            String jsonIdDocument = convertToJson("id", idDocument);
+            List<CommandeDocument> lesCommandes = TraitementRecup<CommandeDocument>(GET, "commandedocument/" + jsonIdDocument, null);
+            return lesCommandes;
         }
 
         /// <summary>
-        /// Modifie l'étape de suivi d'une commande document via l'API.
+        /// Création d'une commande de document (livre ou DVD)
         /// </summary>
-        /// <param name="idCommande">L'ID de la commande document à modifier.</param>
-        /// <param name="idSuivi">Le nouvel ID de l'étape de suivi.</param>
-        /// <returns>True si la modification a réussi (code 200), sinon False.</returns>
-        public bool ModifierSuiviCommande(string idCommande, int idSuivi)
+        /// <param name="commande">CommandeDocument à créer</param>
+        /// <returns>true si la création a réussi</returns>
+        public bool CreerCommandeDocument(CommandeDocument commande)
         {
-            String jsonIdSuivi = convertToJson("idSuivi", idSuivi);
-            String parametres = "champs=" + jsonIdSuivi;
+            string parametres = $"id={commande.Id}" +
+                              $"&dateCommande={commande.DateCommande.ToString("yyyy-MM-dd")}" +
+                              $"&montant={commande.Montant.ToString().Replace(",", ".")}" +
+                              $"&nbExemplaire={commande.NbExemplaire}" +
+                              $"&idLivreDvd={commande.IdLivreDvd}" +
+                              $"&idSuivi={commande.IdSuivi}";
 
             try
             {
-                JObject retour = api.RecupDistant(PUT, "commandedocument/" + idCommande, parametres);
-                return retour != null && (String)retour["code"] == "200";
+                List<CommandeDocument> liste = TraitementRecup<CommandeDocument>(POST, "commandedocument", parametres);
+                return (liste != null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la modification du suivi (ID: {idCommande}) via l'API : " + ex.Message);
-                return false;
+                Console.WriteLine(ex.Message);
             }
+            return false;
         }
 
         /// <summary>
-        /// Supprime une commande via l'API.
+        /// Modification de l'étape de suivi d'une commande de document
         /// </summary>
-        /// <param name="idCommande">L'ID de la commande à supprimer.</param>
-        /// <returns>True si la suppression a réussi (code 200), sinon False.</returns>
-        public bool SupprimerCommande(string idCommande)
+        /// <param name="idCommande">id de la commande à modifier</param>
+        /// <param name="idSuivi">nouvel id de l'étape de suivi</param>
+        /// <returns>true si la modification a réussi</returns>
+        public bool ModifierEtapeSuivi(string idCommande, string idSuivi)
         {
+            string url = "commandedocument/" + idCommande;
+            string parametres = "idSuivi=" + idSuivi;
+
             try
             {
-                JObject retour = api.RecupDistant(DELETE, "commande/" + idCommande, null);
-                bool success = retour != null && (String)retour["code"] == "200";
-                if (!success)
+                List<CommandeDocument> liste = TraitementRecup<CommandeDocument>(PUT, url, parametres);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Suppression d'une commande de document (livre ou DVD) et de la commande associée
+        /// </summary>
+        /// <param name="idCommande">id de la commande à supprimer</param>
+        /// <returns>true si la suppression a réussi</returns>
+        public bool SupprimerCommandeDocument(string idCommande)
+        {
+            String jsonIdCommande = convertToJson("id", idCommande);
+            try
+            {
+                List<CommandeDocument> liste = TraitementRecup<CommandeDocument>(DELETE, "commandedocument/" + jsonIdCommande, null);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Retourne les abonnements d'une revue
+        /// </summary>
+        /// <param name="idRevue">id de la revue concernée</param>
+        /// <returns>Liste d'objets Abonnement</returns>
+        public List<Abonnement> GetAbonnementsRevue(string idRevue)
+        {
+            String jsonIdRevue = convertToJson("id", idRevue);
+            List<Abonnement> lesAbonnements = TraitementRecup<Abonnement>(GET, "commanderevue/" + jsonIdRevue, null);
+            return lesAbonnements;
+        }
+
+        /// <summary>
+        /// Création d'un abonnement
+        /// </summary>
+        /// <param name="abonnement">Abonnement à créer</param>
+        /// <returns>true si la création a réussi</returns>
+        public bool CreerAbonnement(Abonnement abonnement)
+        {
+            // Création du format form-urlencoded directement
+            string parametres = $"id={abonnement.Id}" +
+                              $"&dateCommande={abonnement.DateCommande.ToString("yyyy-MM-dd")}" +
+                              $"&montant={abonnement.Montant.ToString().Replace(",", ".")}" +
+                              $"&dateFinAbonnement={abonnement.DateFinAbonnement.ToString("yyyy-MM-dd")}" +
+                              $"&idRevue={abonnement.IdRevue}";
+
+            // Afficher le format pour déboguer
+            MessageBox.Show("Paramètres envoyés: " + parametres);
+            try
+            {
+                List<Abonnement> liste = TraitementRecup<Abonnement>(POST, "commanderevue", parametres);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Suppression d'un abonnement et de la commande associée
+        /// </summary>
+        /// <param name="idAbonnement">id de l'abonnement à supprimer</param>
+        /// <returns>true si la suppression a réussi</returns>
+        public bool SupprimerAbonnement(string idAbonnement)
+        {
+            String jsonIdAbonnement = convertToJson("id", idAbonnement);
+            try
+            {
+                List<Abonnement> liste = TraitementRecup<Abonnement>(DELETE, "commanderevue/" + jsonIdAbonnement, null);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Vérifie si une parution se trouve dans la période d'abonnement
+        /// </summary>
+        /// <param name="dateCommande">Date de début d'abonnement</param>
+        /// <param name="dateFinAbonnement">Date de fin d'abonnement</param>
+        /// <param name="dateParution">Date de parution à vérifier</param>
+        /// <returns>True si la parution est comprise dans l'abonnement</returns>
+        public bool ParutionDansAbonnement(DateTime dateCommande, DateTime dateFinAbonnement, DateTime dateParution)
+        {
+            return (dateParution >= dateCommande && dateParution <= dateFinAbonnement);
+        }
+
+        /// <summary>
+        /// Récupère toutes les revues dont l'abonnement se termine dans moins de 30 jours
+        /// </summary>
+        /// <returns>Liste de tuples contenant les infos des revues et dates de fin d'abonnement</returns>
+        public List<Tuple<Revue, DateTime>> GetAbonnementsFinProche()
+        {
+            List<Abonnement> abonnementsEnCours = TraitementRecup<Abonnement>(GET, "abofinproche", null);
+            List<Tuple<Revue, DateTime>> revuesFin = new List<Tuple<Revue, DateTime>>();
+            
+            foreach (Abonnement abonnement in abonnementsEnCours)
+            {
+                Revue revue = GetRevue(abonnement.IdRevue);
+                if (revue != null)
                 {
-                    Console.WriteLine($"Erreur retournée par l'API lors de la suppression (ID: {idCommande}): Code={(String)retour?["code"]} Message={(String)retour?["message"]}");
+                    revuesFin.Add(new Tuple<Revue, DateTime>(revue, abonnement.DateFinAbonnement));
                 }
-                 return success;
             }
-            catch (Exception ex)
+            
+            // Trier par date de fin d'abonnement
+            return revuesFin.OrderBy(r => r.Item2).ToList();
+        }
+
+        /// <summary>
+        /// Tente d'authentifier un utilisateur via l'API REST.
+        /// </summary>
+        /// <param name="login">Login de l'utilisateur.</param>
+        /// <param name="password">Mot de passe de l'utilisateur.</param>
+        /// <returns>Un objet Utilisateur (minimaliste avec Login et IdService) si l'authentification réussit, sinon null.</returns>
+        public Utilisateur AuthenticateUser(string login, string password)
+        {
+            string parametres = $"login={Uri.EscapeDataString(login)}&password={Uri.EscapeDataString(password)}";
+            try
             {
-                 Console.WriteLine($"Erreur lors de la suppression de la commande (ID: {idCommande}) via l'API : " + ex.Message);
-                 return false;
+                JObject retour = api.RecupDistant(POST, "auth", parametres);
+                
+                if (retour != null && retour["code"] != null && (int?)retour["code"] == 200)
+                {
+                    if (retour["result"] != null && retour["result"].Type == JTokenType.Object)
+                    {
+                        Utilisateur utilisateur = retour["result"].ToObject<Utilisateur>();
+                        if (utilisateur != null && !string.IsNullOrEmpty(utilisateur.Login) && utilisateur.IdService > 0) 
+                        {
+                            return utilisateur; 
+                        }
+                        else
+                        {
+                            Console.WriteLine("Erreur AuthenticateUser : Données utilisateur invalides reçues de l'API.");
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Erreur AuthenticateUser : La clé 'result' est manquante ou n'est pas un objet JSON dans la réponse API.");
+                        return null;
+                    }
+                }
+                else if (retour != null && retour["code"] != null)
+                {
+                    Console.WriteLine($"Erreur AuthenticateUser (API) : Code {retour["code"]} - Message: {retour["message"]}");
+                    return null;
+                }
+                else
+                {
+                     Console.WriteLine("Erreur AuthenticateUser : Réponse invalide ou nulle de l'API.");
+                     return null;
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception dans AuthenticateUser : " + e.Message);
+                // Peut-être logger l'exception ici
+                return null; // Authentification échouée suite à une exception
+            }
+        }
+
+        /// <summary>
+        /// Récupère une revue par son id
+        /// </summary>
+        /// <param name="idRevue">id de la revue</param>
+        /// <returns>La revue correspondante ou null</returns>
+        private Revue GetRevue(string idRevue)
+        {
+            String jsonIdRevue = convertToJson("id", idRevue);
+            List<Revue> revues = TraitementRecup<Revue>(GET, "revue/" + jsonIdRevue, null);
+            if (revues.Count > 0)
+            {
+                return revues[0];
+            }
+            return null;
         }
 
         /// <summary>
@@ -285,6 +445,7 @@ namespace MediaTekDocuments.dal
         /// <returns>liste d'objets récupérés (ou liste vide)</returns>
         private List<T> TraitementRecup<T> (String methode, String message, String parametres)
         {
+            // trans
             List<T> liste = new List<T>();
             try
             {
@@ -350,18 +511,6 @@ namespace MediaTekDocuments.dal
             {
                 serializer.Serialize(writer, value);
             }
-        }
-
-        /// <summary>
-        /// Récupère un DVD spécifique par son ID.
-        /// </summary>
-        /// <param name="idDvd">L'identifiant du DVD.</param>
-        /// <returns>L'objet Dvd trouvé ou null si non trouvé.</returns>
-        public Dvd GetDvdById(string idDvd)
-        {
-            String jsonIdDvd = convertToJson("id", idDvd);
-            List<Dvd> result = TraitementRecup<Dvd>(GET, "dvd/" + jsonIdDvd, null);
-            return result?.FirstOrDefault();
         }
     }
 }

@@ -1,43 +1,48 @@
 namespace MediaTekDocuments.model
 {
     /// <summary>
-    /// Classe métier représentant une ligne de commande pour un document (Livre ou DVD).
+    /// Classe métier représentant une commande de document (livre ou DVD)
     /// </summary>
-    public class CommandeDocument
+    public class CommandeDocument : Commande
     {
         /// <summary>
-        /// Obtient ou définit l'identifiant de la ligne de commande.
-        /// </summary>
-        public string IdCommande { get; set; }
-
-        /// <summary>
-        /// Obtient ou définit le nombre d'exemplaires commandés.
+        /// Nombre d'exemplaires commandés
         /// </summary>
         public int NbExemplaire { get; set; }
-
+        
         /// <summary>
-        /// Obtient ou définit l'identifiant du livre ou DVD commandé.
+        /// Identifiant du livre ou DVD
         /// </summary>
         public string IdLivreDvd { get; set; }
-
+        
         /// <summary>
-        /// Obtient ou définit l'identifiant de l'étape de suivi.
+        /// Étape de suivi de la commande
         /// </summary>
-        public int IdSuivi { get; set; }
-
+        public string IdSuivi { get; set; }
+        
         /// <summary>
-        /// Initialise une nouvelle instance de la classe <see cref="CommandeDocument"/>.
+        /// Libellé de l'étape de suivi
         /// </summary>
-        /// <param name="idCommande">L'identifiant de la commande.</param>
-        /// <param name="nbExemplaire">Le nombre d'exemplaires.</param>
-        /// <param name="idLivreDvd">L'identifiant du livre ou DVD.</param>
-        /// <param name="idSuivi">L'identifiant de l'étape de suivi.</param>
-        public CommandeDocument(string idCommande, int nbExemplaire, string idLivreDvd, int idSuivi)
+        public string LibelleSuivi { get; set; }
+        
+        /// <summary>
+        /// Constructeur de la classe CommandeDocument
+        /// </summary>
+        /// <param name="id">Identifiant de la commande</param>
+        /// <param name="dateCommande">Date de la commande</param>
+        /// <param name="montant">Montant de la commande</param>
+        /// <param name="nbExemplaire">Nombre d'exemplaires</param>
+        /// <param name="idLivreDvd">Identifiant du livre ou DVD</param>
+        /// <param name="idSuivi">Identifiant de l'étape de suivi</param>
+        /// <param name="libelleSuivi">Libellé de l'étape de suivi</param>
+        public CommandeDocument(string id, System.DateTime dateCommande, double montant, int nbExemplaire, 
+            string idLivreDvd, string idSuivi, string libelleSuivi) 
+            : base(id, dateCommande, montant)
         {
-            this.IdCommande = idCommande;
-            this.NbExemplaire = nbExemplaire;
-            this.IdLivreDvd = idLivreDvd;
-            this.IdSuivi = idSuivi;
+            NbExemplaire = nbExemplaire;
+            IdLivreDvd = idLivreDvd;
+            IdSuivi = idSuivi;
+            LibelleSuivi = libelleSuivi;
         }
     }
 } 

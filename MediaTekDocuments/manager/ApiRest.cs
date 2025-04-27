@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MediaTekDocuments.manager
 {
@@ -102,14 +102,14 @@ namespace MediaTekDocuments.manager
 
             try
             {
-            return JObject.Parse(jsonResponse);
+                return JObject.Parse(jsonResponse);
             }
             catch (JsonReaderException ex)
             {
                 Console.WriteLine($"Erreur de parsing JSON : {ex.Message}");
                 Console.WriteLine($"Réponse brute qui a causé l'erreur :\n{jsonResponse}");
                 // Retourne un JObject vide ou spécifique pour indiquer l'erreur de parsing plutôt que de laisser l'application crash plus loin.
-                 return JObject.FromObject(new { code = "PARSE_ERROR", message = "Erreur parsing JSON: " + ex.Message, result = (string)null });
+                return JObject.FromObject(new { code = "PARSE_ERROR", message = "Erreur parsing JSON: " + ex.Message, result = (string)null });
             }
         }
 
