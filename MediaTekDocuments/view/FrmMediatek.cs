@@ -20,14 +20,33 @@ namespace MediaTekDocuments.view
     public partial class FrmMediatek : Form
     {
         #region Variables globales
-
+        /// <summary>
+        /// Contrôleur de la fenêtre principale
+        /// </summary>
         private readonly FrmMediatekController controller;
+        /// <summary>
+        /// BindingSource pour les genres
+        /// </summary>
         private readonly BindingSource bdgGenres = new BindingSource();
+        /// <summary>
+        /// BindingSource pour les publics
+        /// </summary>
         private readonly BindingSource bdgPublics = new BindingSource();
+        /// <summary>
+        /// BindingSource pour les rayons
+        /// </summary>
         private readonly BindingSource bdgRayons = new BindingSource();
+        /// <summary>
+        /// BindingSource pour les étapes de suivi
+        /// </summary>
         private readonly BindingSource bdgSuivis = new BindingSource();
+        /// <summary>
+        /// Liste des étapes de suivi
+        /// </summary>
         private List<Categorie> lesEtapesSuivi;
-
+        /// <summary>
+        /// ID du service de l'utilisateur connecté
+        /// </summary>
         private readonly int idServiceUtilisateurConnecte;
 
         #endregion

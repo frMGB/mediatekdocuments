@@ -6,6 +6,11 @@ namespace MediaTekDocuments.model
     /// </summary>
     public class Rayon : Categorie
     {
+        /// <summary>
+        /// Constructeur de la classe Rayon
+        /// </summary>
+        /// <param name="id">Id du rayon</param>
+        /// <param name="libelle">Libellé du rayon</param>
         public Rayon(string id, string libelle) : base(id, libelle)
         {
         }

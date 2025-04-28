@@ -12,10 +12,16 @@ using MediaTekDocuments.controller;
 
 namespace MediaTekDocuments.view
 {
+    /// <summary>
+    /// Fenêtre de connexion à l'application
+    /// </summary>
     public partial class FrmAuth : Form
     {
         private readonly FrmMediatekController controller;
 
+        /// <summary>
+        /// Constructeur de la fenêtre de connexion
+        /// </summary>
         public FrmAuth()
         {
             InitializeComponent();
@@ -23,7 +29,7 @@ namespace MediaTekDocuments.view
         }
 
         /// <summary>
-        /// Gestionnaire d'événement pour le clic sur le bouton de connexion.
+        /// Gestionnaire d'événement pour le clic sur le bouton de connexion
         /// </summary>
         private void btnConnection_Click(object sender, EventArgs e)
         {
