@@ -37,7 +37,4 @@ Cette fenêtre alerte l'utilisateur quant aux abonnements se terminant dans moin
 Cette fenêtre permet, au démarrage de l'application, à un utilisateur de se connecter. Elle gère alors la logique de vérification des informations de connexion fournies par rapport à la base de données, ainsi que les permissions accordées à l'utilisateur se connectant.<br>
 ![img5](https://github.com/frMGB/mediatekdocuments/blob/main/assets/132300.png?raw=true)
 ## Installation de l'application
-Ce mode opératoire permet d'installer l'application pour pouvoir travailler dessus.<br>
-- Installer Visual Studio 2019 entreprise et les extension Specflow et newtonsoft.json (pour ce dernier, voir l'article "Accéder à une API REST à partir d'une application C#" dans le wiki de ce dépôt : consulter juste le début pour la configuration, car la suite permet de comprendre le code existant).<br>
-- Télécharger le code et le dézipper puis renommer le dossier en "mediatekdocuments".<br>
-- Récupérer et installer l'API REST nécessaire (https://github.com/CNED-SLAM/rest_mediatekdocuments) ainsi que la base de données (les explications sont données dans le readme correspondant).
+Simplement double cliquer sur le fichier 'MediatekDocumentsInstaller.msi' présent dans le dossier portant le même nom, puis suivre les instructions.
