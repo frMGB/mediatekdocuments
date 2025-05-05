@@ -34,7 +34,7 @@ Le fonctionnement est quasiment identique aux onglets précédents, les différe
 Cette fenêtre alerte l'utilisateur quant aux abonnements se terminant dans moins de 30 jours, sous forme d'un tableau comprenant le titre et la date de fin d'abonnement de ces derniers.<br>
 ![img4](https://github.com/frMGB/mediatekdocuments/blob/main/assets/132323.png?raw=true)
 ### Fenêtre d'authentification
-Cette fenêtre permet, au démarrage de l'application, à un utilisateur de se connecter. Elle gère alors la logique de vérification des informations de connexion fournies par rapport à la base de données, ainsi que les permissions accordées à l'utilisateur se connectant.
+Cette fenêtre permet, au démarrage de l'application, à un utilisateur de se connecter. Elle gère alors la logique de vérification des informations de connexion fournies par rapport à la base de données, ainsi que les permissions accordées à l'utilisateur se connectant.<br>
 ![img5](https://github.com/frMGB/mediatekdocuments/blob/main/assets/132300.png?raw=true)
 ## Installation de l'application
 Ce mode opératoire permet d'installer l'application pour pouvoir travailler dessus.<br>
